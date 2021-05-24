@@ -1,15 +1,18 @@
 const moment = require('moment')
 const _ = require('lodash');
 
-const {isSlotAvailableForDate} = require('./parse-util');
-const {getCenters} = require('./client');
-const Mailer = require('./mailer');
+/* Runtime scripts */
+const {isSlotAvailableForDate, parseCommandLineArgs} = require('./scripts/parse-util');
+const {getCenters} = require('./scripts/client');
+const Mailer = require('./scripts/mailer');
+/**/
 
-const args = process.argv.slice(2);
-const pin = args[0] || 500033;
-const checkTillDays = args[1] || 3;
-const minAge = args[2] || 45;
-const dosage = args[3] || 2;
+let {
+    pin,
+    checkTillDays,
+    minAge,
+    dosage
+} = parseCommandLineArgs(process.argv);
 
 let slotFound = false;
 
@@ -26,6 +29,12 @@ const getDates = (checkTillDays) => {
 }
 
 const dates = getDates(checkTillDays);
+console.log('Checking for:\t ', {
+    'Pincode': pin,
+    'Minimum Age': minAge,
+    'Dosage #': dosage,
+    'Checking For Dates': dates
+})
 let mailPayload = {};
 
 getCenters(dates, pin, (err, data) => {
@@ -34,18 +43,19 @@ getCenters(dates, pin, (err, data) => {
         const availableSlotsForDate = isSlotAvailableForDate(date, _.get(res, 'centers', []), minAge, dosage)[date]
 
         if (availableSlotsForDate && availableSlotsForDate.length > 0) {
+            console.log('Slot found for ', date);
             slotFound = true;
             mailPayload[date] = availableSlotsForDate;
-            console.log(`Slot Available for ${date}`);
-        } else {
-            console.log(`No Slot available for ${date}`)
         }
     })
 
     if (slotFound) {
-        console.log('Sending Mail.');
+        console.log('Slot(s) were found, Sending Mail.');
+        console.log(mailPayload)
         let mailer = new Mailer(mailPayload);
         mailer.send();
+    } else {
+        console.log(`No Slot available for ${dates}`)
     }
 });
 

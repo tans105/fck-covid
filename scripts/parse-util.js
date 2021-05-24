@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const parseArgs = require('minimist')
 
 const isSlotAvailableForDate = (date, centers, minAge, dosage) => {
     let slotData = {};
@@ -9,7 +10,7 @@ const isSlotAvailableForDate = (date, centers, minAge, dosage) => {
             const ageLimit = _.get(session, 'min_age_limit', 99);
             let dosageField;
 
-            if ( ageLimit > minAge) return;
+            if (ageLimit > minAge) return;
 
             if (dosage === 1) {
                 dosageField = 'available_capacity_dose1'
@@ -17,7 +18,7 @@ const isSlotAvailableForDate = (date, centers, minAge, dosage) => {
                 dosageField = 'available_capacity_dose2'
             }
 
-            if (session[dosageField] >= 0) { //Slot available
+            if (session[dosageField] > 0) { //Slot available
                 let payload = {
                     name: center.name,
                     address: center.address,
@@ -39,6 +40,18 @@ const isSlotAvailableForDate = (date, centers, minAge, dosage) => {
     return slotData;
 }
 
+const parseCommandLineArgs = () => {
+    let args = parseArgs(process.argv);
+
+    const pin = args['pin'] || args['pincode'] || 560103;
+    const checkTillDays = args['checkTillDays'] || 3;
+    const minAge = args['minAge'] || 18;
+    const dosage = args['dosage'] || 1;
+
+    return {pin, checkTillDays, minAge, dosage}
+}
+
 module.exports = {
-    isSlotAvailableForDate
+    isSlotAvailableForDate,
+    parseCommandLineArgs
 }
