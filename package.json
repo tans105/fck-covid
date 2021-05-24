@@ -4,13 +4,14 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node scripts/runner.js"
+    "start": "node runner.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "async": "~0.9.2",
     "lodash": "^4.17.21",
+    "minimist": "^1.2.5",
     "moment": "latest",
     "nodemailer": "^6.4.11",
     "request": "^2.88.2"
