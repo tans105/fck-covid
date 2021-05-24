@@ -10,7 +10,7 @@ const isSlotAvailableForDate = (date, centers, minAge, dosage) => {
             const ageLimit = _.get(session, 'min_age_limit', 99);
             let dosageField;
 
-            if (ageLimit > minAge) return;
+            if ( ageLimit > minAge) return;
 
             if (dosage === 1) {
                 dosageField = 'available_capacity_dose1'
